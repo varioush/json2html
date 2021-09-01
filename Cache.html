@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Infinispan Cache</title>
+	<script src="metadata.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+	<style>
+	h1 {
+		font-size: 30px;
+		color: #fff;
+		text-transform: uppercase;
+		font-weight: 300;
+		text-align: center;
+		margin-bottom: 15px;
+	}
+	
+	table {
+		width: 100%;
+		table-layout: fixed;
+	}
+	
+	.tbl-content {
+		height: 450px;
+		overflow-x: auto;
+		margin-top: 0px;
+		border: 1px solid rgba(255, 255, 255, 0.3);
+	}
+	
+	th.main {
+		padding: 20px 15px;
+		text-align: left;
+		font-weight: bold;
+		font-size: 14px;
+		color: #fff;
+		text-transform: uppercase;
+		background-color: rgba(255, 255, 255, 0.3);
+	}
+	
+	td.main {
+		padding: 15px;
+		text-align: left;
+		vertical-align: middle;
+		font-weight: 300;
+		font-size: 14px;
+		color: #fff;
+		border-bottom: solid 1px rgba(255, 255, 255, 0.1);
+	}
+	
+	th.info {
+		padding: 8px;
+		text-align: left;
+		font-weight: bold;
+		font-size: 12px;
+		color: #000;
+		background-color: #FFF;
+		border: 1px solid #ddd;
+		text-transform: uppercase;
+	}
+	
+	td.info {
+		padding: 8px;
+		text-align: left;
+		vertical-align: middle;
+		font-weight: 300;
+		font-size: 12px;
+		color: #000;
+		background-color: #FFF;
+		border: 1px solid #ddd;
+	}
+	
+	
+	td.refresh {
+		padding: 8px;
+		text-align: left;
+		vertical-align: middle;
+		font-weight: 300;
+		font-size: 12px;
+		color: #000;
+		background-color: #FFF;
+		
+	}
+	
+	/* demo styles */
+	
+	@import url(https://fonts.googleapis.com/css?family=Roboto:400,500,300,700);
+	body {
+		background: -webkit-linear-gradient(left, #25c481, #25b7c4);
+		background: linear-gradient(to right, #25c481, #25b7c4);
+		font-family: 'Roboto', sans-serif
+	}
+	/*
+		color: #404040;
+		background: #47496D;
+		background-image: -webkit-radial-gradient(center, circle cover, #6b6e8c, #212649);
+		background-image: -moz-radial-gradient(center, circle cover, #6b6e8c, #212649);
+		background-image: -o-radial-gradient(center, circle cover, #6b6e8c, #212649);
+		background-image: radial-gradient(center, circle cover, #6b6e8c, #212649);
+	*/
+	
+	section {
+		margin: 50px;
+	}
+	/* for custom scrollbar for webkit browser*/
+	
+	::-webkit-scrollbar {
+		width: 6px;
+	}
+	
+	::-webkit-scrollbar-track {
+		-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+	}
+	
+	::-webkit-scrollbar-thumb {
+		-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+	}
+	
+	input[type="button"]
+	/* Or better yet try giving an ID or class if possible*/
+	
+	{
+		border: 0;
+		background: none;
+		box-shadow: none;
+		border-radius: 0px;
+		color: #FF0;
+	}
+	
+	input[type="button"]:focus {
+		background: none;
+		outline: none;
+		border: none;
+		color: #0FF;
+	}
+	
+	input[type="button"]:hover {
+		background: none;
+		border: none;
+		outline: none;
+		box-shadow: none;
+		color: #F0F;
+	}
+	
+	fieldset {
+		overflow: hidden
+	}
+	
+	div.info {
+		float: left;
+		clear: none;
+	}
+	
+	label {
+		float: left;
+		clear: none;
+		display: block;
+		padding: 3px 1em 0px 8px;
+	}
+	
+	input[type=radio],
+	input.radio {
+		float: left;
+		clear: none;
+		margin: 2px 0 0 2px;
+	}
+	
+	span.info {
+		float: left;
+		font-weight: bold;
+		margin-right: 6px;
+		padding: 3px 1em 0px 8px;
+	}
+	
+	button.info {
+		float: left;
+		font-weight: bold;
+		margin-right: 6px;
+		padding: 3px 1em 0px 8px;
+	}
+	
+	input[type=text] {
+		float: left;
+		padding: 10px;
+		border: none;
+		font-size: 17px;
+	}
+	</style>
+</head>
+
+<body>
+	<section>
+		<!--for demo wrap-->
+		<div class="Search" style="margin-bottom: 10px;">
+			<div style="float:right">
+				<h1>Infinispan Cache</h1></div>
+			<div style="float:left;	">
+				<input type="text" name="search" autocomplete="off" onInput="search(this)" placeholder="Search.."> </div>
+		</div>
+		<div class="tbl-header">
+			<table cellpadding="0" cellspacing="0" border="0" class="main">
+				<thead>
+					<tr>
+						<th class="main">Code</th>
+						<th class="main">Scope</th>
+						<th class="main">Details</th>
+						<th class="main">Refresh</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+		<div class="tbl-content">
+			<table cellpadding="0" cellspacing="0" border="0" class="main" id="main">
+				<tbody id="tblBody"> </tbody>
+			</table>
+		</div>
+	</section>
+	<script type="text/javascript">
+	var local = metadata["local-cache"];
+	var distributed = metadata["distributed-cache"];
+	var n = 0;
+
+	var URL={};
+	URL['SIT']='https://sitpg.rpay.co.in';
+	URL['PP']='https://testpg.rpay.co.in';
+	class M
+	{
+	
+		
+	
+	    constructor(self, parent) {
+			
+		
+			if(parent){
+				this.self = document.createElement(self);
+				parent.appendChild(this.self);
+			}
+			else
+			{
+				this.self = document.getElementById(self);
+			}
+			
+		}
+		
+		
+		text(val)
+		{
+		
+			var text = document.createTextNode(val);
+			this.self.appendChild(text);
+			
+		}
+		
+		attr(key, value)
+		{
+			this.self.setAttribute(key,value);
+		}
+		
+		toggle()
+		{
+			var element = this.get();
+			var style = element.style.display=='none'?'table-row':'none';
+			element.style.display= style;
+			return style;
+		}
+		
+		off()
+		{	
+			this.self.style.display='none';
+		}
+		
+		get()
+		{
+			return this.self;
+		}
+		
+		html(text)
+		{
+			this.self.innerHTML = text;
+		}
+		
+	}
+	
+	
+	function build(col, def) {
+		var tbl = new M("tblBody");
+		
+		for(var i = n; i < col.length + n; i++) {
+			var name = col[i - n]["name"];
+		
+			var row  = new M("tr", tbl.get());
+			row.attr("id", i);
+			row.attr("def", name);
+			
+			var cell = new M("td", row.get());
+			cell.attr("class", "main");
+			cell.text(name);
+			
+			cell = new M("td", row.get());
+			cell.attr("class", "main");
+			cell.text(def);
+			
+			cell = new M("td", row.get());
+			cell.attr("class", "main");
+			
+			
+			
+			
+				
+			btn = new M('input', cell.get());
+			btn.attr("type","button");
+			btn.attr("id","ibtn_"+i);
+			btn.attr("class","btn");
+			btn.attr("value", "Show");
+			
+			btn.get().onclick = (function(id) {
+				return function() {
+					
+					var refresh = new  M("rbtn_" + id);
+					var info = new M("ibtn_" + id);
+					var rtr = new  M("refresh_" + id);
+					var itr = new  M("info_" + id);
+					
+					refresh.get().value='Play!';
+					rtr.off();
+					var value = "Hide";
+					
+					if(itr.toggle()== 'none') {
+						value="Show";
+					}
+					
+					info.get().value=value;
+
+				}
+			})(i);
+			
+			
+			
+			
+			
+			
+			cell = new M("td", row.get());
+			cell.attr("class", "main");
+			
+			
+			
+			btn = new M('input', cell.get());
+			btn.attr("type","button");
+			btn.attr("id","rbtn_"+i);
+			btn.attr("class","btn");
+			btn.attr("value", "Play!");
+			
+			btn.get().onclick = (function(id) {
+				return function() {
+					
+					var refresh = new  M("rbtn_" + id);
+					var info = new M("ibtn_" + id);
+					var rtr = new  M("refresh_" + id);
+					var itr = new  M("info_" + id);
+					
+					info.get().value='Show';
+					itr.off();
+					var value = "Waiting";
+					
+					if(rtr.toggle()== 'none') {
+						value="Play!";
+					}
+					
+					refresh.get().value=value;
+					
+					
+
+				}
+			})(i);
+			
+			
+			row = new M("tr", tbl.get());
+			
+			row.attr("id", "info_" +i);
+			row.attr("def", name);
+			row.attr("class", "info");
+			
+			row.off();
+			
+			
+			cell = new M("td", row.get());
+			cell.attr("colspan", "4");
+			
+			var t = new M("table", cell.get());
+			var th = new M("thead", t.get());
+			
+			
+			var cr = new M("tr", th.get());
+			var cc = new M("th", cr.get());
+			cc.attr("class", "info");
+			cc.text("Property");
+			
+			cc = new M("th", cr.get());
+			cc.attr("class", "info");
+			cc.text("Value");
+			
+			
+			var tb = new M("tbody", t.get());
+			
+			
+			buildInfo(tb, col, "Start Type", local[i - n].start);
+			buildInfo(tb, col, "Eviction Strategy", local[i - n].eviction.strategy);
+			buildInfo(tb, col, "Eviction Size", local[i - n].eviction.size);
+			buildInfo(tb, col, "Eviction Type", local[i - n].eviction.type);
+			buildInfo(tb, col, "Expiration Time", local[i - n].expiration.lifespan);
+			
+			row = new M("tr", tbl.get());
+			row.attr("def", col[i - n]["name"]);
+			row.attr("id", "refresh_" + i);
+			row.off();
+			
+			cell = new M("td", row.get());
+			cell.attr("colspan", "4");
+			cell.attr("class", "refresh");
+			
+			var fieldset = new M("fieldset", cell.get());
+			
+			var span = new M("span", fieldset.get());
+			span.attr("class", "info");
+			span.get().textContent = ("Env:");
+			
+			var div = new M("div", fieldset.get());
+			div.attr("class", "info");
+			
+			var radio = new M('input',div.get());
+			radio.attr("type","radio");
+			radio.attr("class","btn");
+			
+			var rid = "SIT";
+			radio.attr("id",rid);
+			radio.attr("idf",def);
+			radio.attr("name" , "r_" + (i ));
+			radio.attr("value",rid);
+			
+			var label = new M('label', div.get());
+			label.attr("for", rid);
+			label.get().innerHTML = rid;
+			
+			radio = new M('input',div.get());
+			radio.attr("type","radio");
+			radio.attr("class","btn");
+			
+			rid = "PP";
+			radio.attr("id",rid);
+			radio.attr("idf",def);
+			radio.attr("name" , "r_" + (i));
+			radio.attr("value",rid);
+			
+			
+			label = new M('label', div.get());
+			label.attr("for", rid);
+			label.get().innerHTML = rid;
+			
+			
+			var button = new M('button', fieldset.get());
+			button.attr("name","action");
+			button.get().innerHTML = "Click";
+			
+			button.get().onclick = (function(id, name) {
+				return function() {
+				
+					
+				
+					var r = "r_" + id;
+					
+					var opt = document.querySelector('input[name="' + r + '"]:checked');
+					var n = "";
+					if(opt.getAttribute('idf')=='local-cache')
+					{
+						n="Local"
+					}
+					var url = '/reliance-webpay/v1.0/cache/remove'+n+'byreg/'+name;
+					
+					url = URL[opt.value]+url;
+					alert(url);
+					fetch(url);	
+					
+				}
+			})(i, name);
+			
+		}
+		n = col.length;
+	} //row added to end of table body
+	function buildInfo(tb, col, prop, val) {
+		var row = new M("tr", tb.get());
+		var cell = new M("td", row.get());
+		
+		cell.attr("class", "info");
+		cell.text(prop);
+		
+		cell = new M("td", row.get());
+		cell.attr("class", "info");
+		cell.text(val);
+		
+	}
+	build(local, "local-cache");
+	build(distributed, "distributed-cache");
+	var everything = document.querySelectorAll('#main>tbody>tr');
+
+	function search(obj) {
+		var value = obj.value.toLowerCase();
+		everything.forEach(function(currentValue, currentIndex, listObj) {
+			if(value == "") {
+				if(currentValue.getAttribute("class") != "info") {
+					currentValue.style.display = 'table-row';
+				}
+			} else {
+				var def = currentValue.getAttribute("def").toLowerCase();
+				if(def.includes(value)) {
+					
+					if(currentValue.getAttribute("class") != "info") {
+						currentValue.style.display = 'table-row';
+					}
+				} else {
+					currentValue.style.display = 'none';
+				}
+			}
+		});
+	}
+	</script>
+	<!-- LOVE SOURCE -->
+	<!-- .------..------..------..------..------.     .------..------..------.
+         |R.--. ||O.--. ||H.--. ||I.--. ||T.--. |.-.  |R.--. ||O.--. ||X.--. |
+         | :(): || :/\: || :/\: || (\/) || :/\: ((5)) | :(): || :/\: || :/\: |
+         | ()() || :\/: || (__) || :\/: || (__) |'-.-.| ()() || :\/: || (__) |
+         | '--'R|| '--'O|| '--'H|| '--'I|| '--'T| ((1)) '--'R|| '--'O|| '--'X|
+         `------'`------'`------'`------'`------'  '-'`------'`------'`------' -->
+</body>
+
+</html>
