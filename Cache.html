@@ -4,7 +4,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>Infinispan Cache</title>
-	<script src="metadata.js"></script>
+	
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
 	<style>
 	h1 {
@@ -142,42 +142,6 @@
 		color: #F0F;
 	}
 	
-	fieldset {
-		overflow: hidden
-	}
-	
-	div.info {
-		float: left;
-		clear: none;
-	}
-	
-	label {
-		float: left;
-		clear: none;
-		display: block;
-		padding: 3px 1em 0px 8px;
-	}
-	
-	input[type=radio],
-	input.radio {
-		float: left;
-		clear: none;
-		margin: 2px 0 0 2px;
-	}
-	
-	span.info {
-		float: left;
-		font-weight: bold;
-		margin-right: 6px;
-		padding: 3px 1em 0px 8px;
-	}
-	
-	button.info {
-		float: left;
-		font-weight: bold;
-		margin-right: 6px;
-		padding: 3px 1em 0px 8px;
-	}
 	
 	input[type=text] {
 		float: left;
@@ -185,18 +149,88 @@
 		border: none;
 		font-size: 17px;
 	}
+	
+	.tabs{
+    width: 1000px;
+    display: block;
+    margin: 40px auto;
+    position: relative;
+}
+
+.tabs .tab{
+    float: left;
+    display: block;
+}
+
+.tabs .tab>input[type="radio"] {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+}
+
+.tabs .tab>label {
+    display: block;
+    padding: 6px 21px;
+    font-size: 20px;
+    text-transform: uppercase;
+    cursor: pointer;
+    position: relative;
+    color: #FFF;
+    background: #4A83FD;
+}
+
+.tabs .content {
+    z-index: 0;/* or display: none; */
+    overflow: hidden;
+    width: 1000px;
+    padding: 25px;
+    position: absolute;
+    top: 27px;
+    left: 0;
+    background: #303030;
+    color: #DFDFDF;
+    
+    opacity:0;
+    transition: opacity 400ms ease-out;
+}
+
+.tabs>.tab>[id^="tab"]:checked + label {
+    top: 0;
+    background: #303030;
+    color: #F5F5F5;
+}
+
+.tabs>.tab>[id^="tab"]:checked ~ [id^="tab-content"] {
+    z-index: 1;/* or display: block; */
+   
+    opacity: 1;
+    transition: opacity 400ms ease-out;
+}
 	</style>
 </head>
 
 <body>
+
+	
+  
+
+
+
 	<section>
+		
+	
 		<!--for demo wrap-->
-		<div class="Search" style="margin-bottom: 10px;">
-			<div style="float:right">
-				<h1>Infinispan Cache</h1></div>
-			<div style="float:left;	">
-				<input type="text" name="search" autocomplete="off" onInput="search(this)" placeholder="Search.."> </div>
-		</div>
+		
+	<ul class="tabs" id="parent">
+    
+   
+	</ul>
+		
+		
+	</section>
+	<div style="display:none" id="base">
+	
+	
 		<div class="tbl-header">
 			<table cellpadding="0" cellspacing="0" border="0" class="main">
 				<thead>
@@ -214,15 +248,15 @@
 				<tbody id="tblBody"> </tbody>
 			</table>
 		</div>
-	</section>
-	<script type="text/javascript">
-	var local = metadata["local-cache"];
-	var distributed = metadata["distributed-cache"];
-	var n = 0;
+	</div>
+	
 
-	var URL={};
-	URL['SIT']='https://sitpg.rpay.co.in';
-	URL['PP']='https://testpg.rpay.co.in';
+
+	<script type="text/javascript">
+
+
+
+	
 	class M
 	{
 	
@@ -280,17 +314,72 @@
 		}
 		
 	}
+	function camelize(str) {
+  return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(word, index) {
+    return index === 0 ? word.toLowerCase() : word.toUpperCase();
+  }).replace(/\s+/g, '');
+}
+	
+	function build(col, scope, checked) {
+	var identifier = scope.substring(0,scope.indexOf("-")).toUpperCase();
+	var ul = new M("parent")
+	var li = new M("li",ul.get());
+	li.attr("class","tab");
+	
+	var input = new M("input", li.get());
+	input.attr("type","radio");
+	input.attr("name","tabs");
+	input.attr("id","tab"+identifier);
+	if(checked)
+	{
+		input.attr("checked","checked");
+	}
+	
+	var label = new M("label", li.get());
+	label.attr("for","tab"+identifier);
+	label.get(0).innerHTML="<h2>"+identifier+"</h2>";
+	
+	var tdiv = new M("div",li.get(0));
+	tdiv.attr("id","tab-content"+identifier);
+	tdiv.attr("class","content");
 	
 	
-	function build(col, def) {
-		var tbl = new M("tblBody");
+	var sdiv = new M("div", tdiv.get());
+	sdiv.attr('class','Search');
+	sdiv.attr('style','margin-bottom: 10px;');
+	
+	var sdivr = new M("div", sdiv.get());
+	sdivr.attr('style','float:right');
+	
+	var h1 = new M("h1",sdivr.get());
+	h1.get().innerHTML = camelize(identifier)+" " + "Cache";
+	
+	var sdivl = new M("tdiv", sdiv.get());
+	sdivl.attr('style','float:left');
+	
+	var sinput = new M("input",sdivl.get());
+	sinput.attr("type","text");
+	sinput.attr("name","search");
+	sinput.attr("autocomplete","off");
+	sinput.attr("onInput","search(this,'"+identifier+"')");
+	sinput.attr("placeholder","Search...");
+	
+	
+	
+	tdiv.get(0).innerHTML=tdiv.get(0).innerHTML+new M("base").get().innerHTML;
+
+	var tbl = tdiv.get(0).querySelector('[id=tblBody]');
+	
 		
-		for(var i = n; i < col.length + n; i++) {
-			var name = col[i - n]["name"];
 		
-			var row  = new M("tr", tbl.get());
-			row.attr("id", i);
-			row.attr("def", name);
+		
+		for(var i = 0; i < col.length; i++) {
+			var name = col[i]["name"];
+		
+			var row  = new M("tr", tbl);
+			row.attr("id",identifier+i);
+			row.attr("name", name);
+			row.attr("scope", identifier);
 			
 			var cell = new M("td", row.get());
 			cell.attr("class", "main");
@@ -298,7 +387,7 @@
 			
 			cell = new M("td", row.get());
 			cell.attr("class", "main");
-			cell.text(def);
+			cell.text(scope);
 			
 			cell = new M("td", row.get());
 			cell.attr("class", "main");
@@ -309,20 +398,21 @@
 				
 			btn = new M('input', cell.get());
 			btn.attr("type","button");
-			btn.attr("id","ibtn_"+i);
+			btn.attr("id","ibtn_"+identifier+i);
 			btn.attr("class","btn");
 			btn.attr("value", "Show");
 			
-			btn.get().onclick = (function(id) {
+			
+			btn.get().onclick = (function(id,identifier) {
 				return function() {
 					
-					var refresh = new  M("rbtn_" + id);
-					var info = new M("ibtn_" + id);
-					var rtr = new  M("refresh_" + id);
-					var itr = new  M("info_" + id);
+					//var refresh = new  M("rbtn_" + id);
+					var info = new M("ibtn_" + identifier+ id);
+				//	var rtr = new  M("refresh_" + id);
+					var itr = new  M("info_"+identifier + id);
 					
-					refresh.get().value='Play!';
-					rtr.off();
+					//refresh.get().value='Play!';
+				//	rtr.off();
 					var value = "Hide";
 					
 					if(itr.toggle()== 'none') {
@@ -332,7 +422,7 @@
 					info.get().value=value;
 
 				}
-			})(i);
+			})(i,identifier);
 			
 			
 			
@@ -343,41 +433,61 @@
 			cell.attr("class", "main");
 			
 			
-			
 			btn = new M('input', cell.get());
 			btn.attr("type","button");
-			btn.attr("id","rbtn_"+i);
+			
 			btn.attr("class","btn");
 			btn.attr("value", "Play!");
 			
-			btn.get().onclick = (function(id) {
+			
+			
+			btn.get().onclick = (function(id, name,identifier) {
 				return function() {
+				
 					
-					var refresh = new  M("rbtn_" + id);
-					var info = new M("ibtn_" + id);
-					var rtr = new  M("refresh_" + id);
-					var itr = new  M("info_" + id);
+				
+					var r = "r_" + id;
 					
-					info.get().value='Show';
-					itr.off();
-					var value = "Waiting";
+					var n ="";
 					
-					if(rtr.toggle()== 'none') {
-						value="Play!";
+					if(identifier=='LOCAL')
+					{
+						n="Local"
 					}
+					var url = '/reliance-webpay/v1.0/cache/remove'+n+'byreg/'+name;
 					
-					refresh.get().value=value;
-					
-					
+					//url = URL[opt.value]+url;
+					console.log(url);
+					fetch(url)
+					  .then(
+						function(response) {
+						  if (response.status !== 200) {
+							alert('Looks like there was a problem. Status Code: ' +
+							  response.status);
+							return;
+						  }
 
+						  // Examine the text in the response
+						  response.json().then(function(data) {
+							alert(data);
+						  });
+						}
+					  )
+					  .catch(function(err) {
+						alert('Fetch Error :'+ err);
+					  });
+					
 				}
-			})(i);
+			})(i, name,identifier);
 			
 			
-			row = new M("tr", tbl.get());
 			
-			row.attr("id", "info_" +i);
-			row.attr("def", name);
+			
+			row = new M("tr", tbl);
+			
+			row.attr("id", "info_" +identifier+i);
+			row.attr("name", name);
+			row.attr("scope", scope);
 			row.attr("class", "info");
 			
 			row.off();
@@ -403,89 +513,20 @@
 			var tb = new M("tbody", t.get());
 			
 			
-			buildInfo(tb, col, "Start Type", local[i - n].start);
-			buildInfo(tb, col, "Eviction Strategy", local[i - n].eviction.strategy);
-			buildInfo(tb, col, "Eviction Size", local[i - n].eviction.size);
-			buildInfo(tb, col, "Eviction Type", local[i - n].eviction.type);
-			buildInfo(tb, col, "Expiration Time", local[i - n].expiration.lifespan);
-			
-			row = new M("tr", tbl.get());
-			row.attr("def", col[i - n]["name"]);
-			row.attr("id", "refresh_" + i);
-			row.off();
-			
-			cell = new M("td", row.get());
-			cell.attr("colspan", "4");
-			cell.attr("class", "refresh");
-			
-			var fieldset = new M("fieldset", cell.get());
-			
-			var span = new M("span", fieldset.get());
-			span.attr("class", "info");
-			span.get().textContent = ("Env:");
-			
-			var div = new M("div", fieldset.get());
-			div.attr("class", "info");
-			
-			var radio = new M('input',div.get());
-			radio.attr("type","radio");
-			radio.attr("class","btn");
-			
-			var rid = "SIT";
-			radio.attr("id",rid);
-			radio.attr("idf",def);
-			radio.attr("name" , "r_" + (i ));
-			radio.attr("value",rid);
-			
-			var label = new M('label', div.get());
-			label.attr("for", rid);
-			label.get().innerHTML = rid;
-			
-			radio = new M('input',div.get());
-			radio.attr("type","radio");
-			radio.attr("class","btn");
-			
-			rid = "PP";
-			radio.attr("id",rid);
-			radio.attr("idf",def);
-			radio.attr("name" , "r_" + (i));
-			radio.attr("value",rid);
+			buildInfo(tb, col, "Start Type", local[i].start);
+			buildInfo(tb, col, "Eviction Strategy", local[i].eviction.strategy);
+			buildInfo(tb, col, "Eviction Size", local[i].eviction.size);
+			buildInfo(tb, col, "Eviction Type", local[i].eviction.type);
+			buildInfo(tb, col, "Expiration Time", local[i].expiration.lifespan);
 			
 			
-			label = new M('label', div.get());
-			label.attr("for", rid);
-			label.get().innerHTML = rid;
 			
 			
-			var button = new M('button', fieldset.get());
-			button.attr("name","action");
-			button.get().innerHTML = "Click";
 			
-			button.get().onclick = (function(id, name) {
-				return function() {
-				
-					
-				
-					var r = "r_" + id;
-					
-					var opt = document.querySelector('input[name="' + r + '"]:checked');
-					var n = "";
-					if(opt.getAttribute('idf')=='local-cache')
-					{
-						n="Local"
-					}
-					var url = '/reliance-webpay/v1.0/cache/remove'+n+'byreg/'+name;
-					
-					url = URL[opt.value]+url;
-					alert(url);
-					fetch(url);	
-					
-				}
-			})(i, name);
 			
 		}
-		n = col.length;
-	} //row added to end of table body
+
+	} 	
 	function buildInfo(tb, col, prop, val) {
 		var row = new M("tr", tb.get());
 		var cell = new M("td", row.get());
@@ -498,11 +539,741 @@
 		cell.text(val);
 		
 	}
-	build(local, "local-cache");
-	build(distributed, "distributed-cache");
+	
+	</script>
+	<!-- LOVE SOURCE -->
+	<!-- .------..------..------..------..------.     .------..------..------.
+         |R.--. ||O.--. ||H.--. ||I.--. ||T.--. |.-.  |R.--. ||O.--. ||X.--. |
+         | :(): || :/\: || :/\: || (\/) || :/\: ((5)) | :(): || :/\: || :/\: |
+         | ()() || :\/: || (__) || :\/: || (__) |'-.-.| ()() || :\/: || (__) |
+         | '--'R|| '--'O|| '--'H|| '--'I|| '--'T| ((1)) '--'R|| '--'O|| '--'X|
+         `------'`------'`------'`------'`------'  '-'`------'`------'`------' -->
+		 
+		 	<script type="text/javascript">
+	var metadata=
+{
+   "local-cache":[
+      {
+         "name":"dbConfigCache",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"10"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"clientByMIDCache",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"10000"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"pgsecureinfoCache",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"40000"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"webpayBanksInfocache",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"200"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"sbiBanksInfocache",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"100"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"sbiBankMappingCodes",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"200"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"billldeskBankMappingCodes",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"200"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"iciciBankMappingCodes",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"200"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"domesticBinCache",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"200"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"convenienceFeeCache",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"10000"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"nonAggregratorBankCodes",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"100"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"mgrpCache",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"100"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"altPmtProcCache",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"25"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"affBanksCache",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"50"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"pmtProcsCache",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"50"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"routingRulesCache",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"10000"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"historicRulesCache",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"10000"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"bankRestrictCache",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"1000"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"errcodesmsgs",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"1000"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"issuererrcodesmsgs",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"1000"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"payUBankMappingCodes",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"200"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"payUErrMsg",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"200"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"paymentTypesCache",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"10000"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"cardbinmaster",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"10000"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"timeoutsByAPI",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"1000"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"secured-convenience",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"10000"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"wpcache",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"1000"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"istResponseTextCache",
+         "start":"EAGER",
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"1000"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      }
+   ],
+   "distributed-cache":[
+      {
+         "name":"default",
+         "mode":"SYNC",
+         "segments":"20",
+         "owners":"2",
+         "remote-timeout":"30000",
+         "start":"EAGER",
+         "locking":{
+            "acquire-timeout":"30000",
+            "concurrency-level":"1000",
+            "striping":"false"
+         },
+         "transaction":{
+            "mode":"NONE"
+         }
+      },
+      {
+         "name":"txnDataCache",
+         "mode":"SYNC",
+         "segments":"20",
+         "owners":"2",
+         "remote-timeout":"30000",
+         "start":"EAGER",
+         "locking":{
+            "acquire-timeout":"30000",
+            "concurrency-level":"1000",
+            "striping":"false"
+         },
+         "transaction":{
+            "mode":"NONE"
+         },
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"1000000"
+         },
+         "expiration":{
+            "lifespan":"600000"
+         }
+      },
+      {
+         "name":"paymentTypesCache",
+         "mode":"SYNC",
+         "segments":"20",
+         "owners":"2",
+         "remote-timeout":"30000",
+         "start":"EAGER",
+         "locking":{
+            "acquire-timeout":"30000",
+            "concurrency-level":"1000",
+            "striping":"false"
+         },
+         "transaction":{
+            "mode":"NONE"
+         },
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"10000"
+         },
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"txnStatusByExtRefCache",
+         "mode":"SYNC",
+         "segments":"20",
+         "owners":"2",
+         "remote-timeout":"30000",
+         "start":"EAGER",
+         "locking":{
+            "acquire-timeout":"30000",
+            "concurrency-level":"1000",
+            "striping":"false"
+         },
+         "transaction":{
+            "mode":"NONE"
+         },
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"2000000"
+         },
+         "expiration":{
+            "lifespan":"3600000"
+         }
+      },
+      {
+         "name":"clientinfoCache",
+         "mode":"SYNC",
+         "segments":"20",
+         "owners":"2",
+         "remote-timeout":"30000",
+         "start":"EAGER",
+         "locking":{
+            "acquire-timeout":"30000",
+            "concurrency-level":"1000",
+            "striping":"false"
+         },
+         "transaction":{
+            "mode":"NONE"
+         },
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"10000"
+         },
+         "#text":"Expiration 24 hours for (mostly) static data",
+         "expiration":{
+            "lifespan":"86400000"
+         }
+      },
+      {
+         "name":"txnStatusByinterRefCache",
+         "mode":"SYNC",
+         "segments":"20",
+         "owners":"2",
+         "remote-timeout":"30000",
+         "start":"EAGER",
+         "locking":{
+            "acquire-timeout":"30000",
+            "concurrency-level":"1000",
+            "striping":"false"
+         },
+         "transaction":{
+            "mode":"NONE"
+         },
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"1000"
+         },
+         "expiration":{
+            "lifespan":"180000"
+         }
+      },
+      {
+         "name":"failCountCache",
+         "mode":"SYNC",
+         "segments":"20",
+         "owners":"2",
+         "remote-timeout":"30000",
+         "start":"EAGER",
+         "locking":{
+            "acquire-timeout":"30000",
+            "concurrency-level":"1000",
+            "striping":"false"
+         },
+         "transaction":{
+            "mode":"NONE"
+         },
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"100000"
+         },
+         "expiration":{
+            "lifespan":"1800000"
+         }
+      },
+      {
+         "name":"pmt_proc_resp_cache_region",
+         "mode":"SYNC",
+         "segments":"20",
+         "owners":"2",
+         "remote-timeout":"30000",
+         "start":"EAGER",
+         "locking":{
+            "acquire-timeout":"30000",
+            "concurrency-level":"1000",
+            "striping":"false"
+         },
+         "transaction":{
+            "mode":"NONE"
+         },
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"1000000"
+         },
+         "expiration":{
+            "lifespan":"300000"
+         }
+      },
+      {
+         "name":"pmt_proc_req_cache_region",
+         "mode":"SYNC",
+         "segments":"20",
+         "owners":"2",
+         "remote-timeout":"30000",
+         "start":"EAGER",
+         "locking":{
+            "acquire-timeout":"30000",
+            "concurrency-level":"1000",
+            "striping":"false"
+         },
+         "transaction":{
+            "mode":"NONE"
+         },
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"1000000"
+         },
+         "expiration":{
+            "lifespan":"3600000"
+         }
+      },
+      {
+         "name":"oneclicks2scache",
+         "mode":"SYNC",
+         "segments":"20",
+         "owners":"2",
+         "remote-timeout":"30000",
+         "start":"EAGER",
+         "locking":{
+            "acquire-timeout":"30000",
+            "concurrency-level":"1000",
+            "striping":"false"
+         },
+         "transaction":{
+            "mode":"NONE"
+         },
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"1000"
+         },
+         "expiration":{
+            "lifespan":"1800000"
+         }
+      },
+      {
+         "name":"mpinStatCache",
+         "mode":"SYNC",
+         "segments":"20",
+         "owners":"2",
+         "remote-timeout":"30000",
+         "start":"EAGER",
+         "locking":{
+            "acquire-timeout":"30000",
+            "concurrency-level":"1000",
+            "striping":"false"
+         },
+         "transaction":{
+            "mode":"NONE"
+         },
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"10000"
+         },
+         "expiration":{
+            "lifespan":"1800000"
+         }
+      },
+      {
+         "name":"b2b_pmt_proc_resp_cache",
+         "mode":"SYNC",
+         "segments":"20",
+         "owners":"2",
+         "remote-timeout":"30000",
+         "start":"EAGER",
+         "locking":{
+            "acquire-timeout":"30000",
+            "concurrency-level":"1000",
+            "striping":"false"
+         },
+         "transaction":{
+            "mode":"NONE"
+         },
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"2000000"
+         },
+         "expiration":{
+            "lifespan":"1800000"
+         }
+      },
+      {
+         "name":"s2s_pmt_proc_resp_cache",
+         "mode":"SYNC",
+         "segments":"20",
+         "owners":"2",
+         "remote-timeout":"30000",
+         "start":"EAGER",
+         "locking":{
+            "acquire-timeout":"30000",
+            "concurrency-level":"1000",
+            "striping":"false"
+         },
+         "transaction":{
+            "mode":"NONE"
+         },
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"2000000"
+         },
+         "expiration":{
+            "lifespan":"1800000"
+         }
+      },
+      {
+         "name":"SHORT_CASH_LOAD_MONEY",
+         "mode":"SYNC",
+         "segments":"20",
+         "owners":"2",
+         "remote-timeout":"30000",
+         "start":"EAGER",
+         "locking":{
+            "acquire-timeout":"30000",
+            "concurrency-level":"1000",
+            "striping":"false"
+         },
+         "transaction":{
+            "mode":"NONE"
+         },
+         "expiration":{
+            "lifespan":"60000"
+         }
+      },
+      {
+         "name":"panDetailsCache",
+         "mode":"SYNC",
+         "segments":"20",
+         "owners":"2",
+         "remote-timeout":"30000",
+         "start":"EAGER",
+         "locking":{
+            "acquire-timeout":"30000",
+            "concurrency-level":"1000",
+            "striping":"false"
+         },
+         "transaction":{
+            "mode":"NONE"
+         },
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"10000"
+         },
+         "expiration":{
+            "lifespan":"900000"
+         }
+      },
+      {
+         "name":"userDetailsCache",
+         "mode":"SYNC",
+         "segments":"20",
+         "owners":"2",
+         "remote-timeout":"30000",
+         "start":"EAGER",
+         "locking":{
+            "acquire-timeout":"30000",
+            "concurrency-level":"1000",
+            "striping":"false"
+         },
+         "transaction":{
+            "mode":"NONE"
+         },
+         "eviction":{
+            "strategy":"LIRS",
+            "type":"COUNT",
+            "size":"10000"
+         },
+         "expiration":{
+            "lifespan":"900000"
+         }
+      }
+   ]
+}
+</script>
+<script type="text/javascript">
+	var local = metadata["local-cache"];
+	var distributed = metadata["distributed-cache"];
+	build(local, "local-cache", true);
+	build(distributed, "distributed-cache",false);
 	var everything = document.querySelectorAll('#main>tbody>tr');
 
-	function search(obj) {
+	function search(obj,scopeValue) {
 		var value = obj.value.toLowerCase();
 		everything.forEach(function(currentValue, currentIndex, listObj) {
 			if(value == "") {
@@ -510,8 +1281,9 @@
 					currentValue.style.display = 'table-row';
 				}
 			} else {
-				var def = currentValue.getAttribute("def").toLowerCase();
-				if(def.includes(value)) {
+				var name = currentValue.getAttribute("name").toLowerCase();
+				var scope = currentValue.getAttribute("scope").toUpperCase();
+				if(name.includes(value) && scope==scopeValue) {
 					
 					if(currentValue.getAttribute("class") != "info") {
 						currentValue.style.display = 'table-row';
@@ -522,14 +1294,8 @@
 			}
 		});
 	}
+	
 	</script>
-	<!-- LOVE SOURCE -->
-	<!-- .------..------..------..------..------.     .------..------..------.
-         |R.--. ||O.--. ||H.--. ||I.--. ||T.--. |.-.  |R.--. ||O.--. ||X.--. |
-         | :(): || :/\: || :/\: || (\/) || :/\: ((5)) | :(): || :/\: || :/\: |
-         | ()() || :\/: || (__) || :\/: || (__) |'-.-.| ()() || :\/: || (__) |
-         | '--'R|| '--'O|| '--'H|| '--'I|| '--'T| ((1)) '--'R|| '--'O|| '--'X|
-         `------'`------'`------'`------'`------'  '-'`------'`------'`------' -->
 </body>
 
 </html>
